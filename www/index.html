@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SendPicClip</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	
+	<link rel="stylesheet" type="text/css" href="css/jquery-mobile-1.3.css" />
+
+    <script>
+        [data-role=footer]{bottom:0;right:0;top:auto! important ;position:absolute !important; } 
+        [data-role=header]{top:0; position:absolute !important; bottom: auto !important;}
+    </script>
+
+    <script type="text/javascript" src="js/cordova.ios.js"></script> 
+    <script type="text/javascript" src="js/jquery-1.9.js"></script>	
+    <script type="text/javascript" src="js/jquery-mobile-1.3.js"></script>
+</head>
+
+<body>
+
+<script type="text/javascript">
+ 
+    // $(document).bind('pageinit', function() {
+
+    //     $("#setName").click(function() {
+    //         if (typeof(localStorage) == 'undefined')
+    //         {
+    //             alert ("local storage not supported");
+    //         }
+    //         else
+    //         {
+    //             var yourName = $("#lname").val(); 
+    //             localStorage.setItem("youname",yourName);
+    //         }
+    //     });
+    // });
+function changePage(page)
+{
+    $.mobile.changePage(page+".html");
+
+}
+        
+</script>
+
+<!-- Start page -->
+<div data-role="page" id="namePage" data-theme="d"> 
+    <div data-role="header" data-theme="b" data-fullscreen="true">
+        <h1>SendPicClip</h1>
+    </div>
+
+    
+    <div data-role="content">   
+    <form>    
+    <br />
+    <table width="100%">
+        <tr><td>&nbsp;</td></tr>
+        <tr><td>&nbsp;</td></tr>
+         <tr align="center"> 
+            <!-- <td><a href="http://SelectContacts.html" data-role="button" data-theme="e" id="SelectContacts" name="SelectContacts"/>Select Contacts</td> -->
+            <td><a href="#" onClick="changePage(this.id)" data-role="button" data-theme="e" id="selectContacts" name="selectContacts"/>Select Contacts</td>
+        </tr>        
+        <tr align="center"> 
+            <td><a href="#" onClick="changePage(this.id)" data-role="button" data-theme="e" id="sendPicture" name="sendPicture"/>Send Picture</td>
+        </tr> 
+        <tr align="center"> 
+            <td><a href="#" onClick="changePage(this.id)" data-role="button" data-theme="e" id="sendVideo" name="sendPicture"/>Send Video</td>
+        </tr>
+    </table> 
+    </form>                       
+    </div><!-- /content -->
+	
+    <div data-role="footer" data-theme="b" data-position="fixed" data-fullscreen="true">
+        <a href="clearContacts.html" rel="external" id="clearContacts" name="clearContacts">Clear Contacts</a>
+    </div>  <!-- end of contet -->
+    
+</div><!-- name page -->
+</body>
+</html>

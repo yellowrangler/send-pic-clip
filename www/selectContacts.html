@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Select Contacts</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	
+	<link rel="stylesheet" type="text/css" href="css/jquery-mobile-1.3.css" />
+
+    <script type="text/javascript" src="js/cordova.ios.js"></script> 
+    <script type="text/javascript" src="js/jquery-1.9.js"></script>	
+    <script type="text/javascript" src="js/jquery-mobile-1.3.js"></script>
+
+</head>
+
+<body>
+<!-- Start of main page -->
+<div data-role="page" id="selectContactsPage" data-theme="d"> 
+
+<script type="text/javascript">    
+    $('#selectContactsPage').bind('pageinit', function() {
+        onDeviceReady();
+    });
+
+     function onDeviceReady() {
+        // alert("bdevice ready");
+        // // find all contacts with 'Bob' in any name field
+        var options = new ContactFindOptions();
+        options.filter=""; 
+        options.multiple=true;
+        // // var fields = ["emails", "name"];
+
+        var fields = ["*"];
+        // alert("before find");
+        navigator.contacts.find(fields, onSuccess, onError, options);
+    };
+
+    //
+    // onSuccess: Get a snapshot of the current contacts
+    //
+    function onSuccess(contacts) {
+        var htmlLine = "";
+
+        for (var i=0; i<contacts.length; i++) {
+            // alert(contacts[i].id+" "+contacts[i].name.formatted);
+            if (contacts[i].phoneNumbers != null)
+            {
+                for (var j=0; j<contacts[i].phoneNumbers.length; j++)
+                {
+                    // alert(contacts[i].phoneNumbers[j].type+" "+contacts[i].phoneNumbers[j].value);
+
+                }
+            }
+
+            if (contacts[i].emails == null)
+                continue;
+
+            for (var j=0; j<contacts[i].emails.length; j++)
+            {
+                if (contacts[i].emails[j].type == "home")
+                {
+                    // var checkValueDisplay = contacts[i].name.formatted + " " + contacts[i].emails[j].value;
+                    var checkValueDisplay = contacts[i].emails[j].value;
+                    htmlLine = htmlLine + "<li><table><tr><td><input type='checkbox' name='checkbox-"+contacts[i].id+"' id='checkbox-"+contacts[i].id+"' class='custom' /></td>";
+                    htmlLine = htmlLine + "<td>"+checkValueDisplay+"</td></tr></table></li>";
+                }
+                // alert(contacts[i].emails[j].type+" "+contacts[i].emails[j].value);
+            }
+            
+            // var dname = "Display Name = " + contacts[i].name.formatted) + "/n";
+            // console.log(contacts[i]);
+            // alert(dname);
+        }
+        // console.log(htmlLine);
+
+        $("#selectContactList").append(htmlLine);
+
+        $('#selectContactList').listview('refresh');
+    }
+
+    //
+    // onError: Failed to get the contacts
+    //
+    function onError(contactError) {
+        alert('onError!');
+    }
+</script>
+    <div data-role="header" data-theme="b" data-fullscreen="true">
+        <h1>Select Contacts</h1>
+    </div>
+    <br/>
+
+    <div data-role="content">	
+    <div class="content-primary">
+    <form>   
+    <ul id="selectContactList" data-role="listview" data-filter="true" data-filter-placeholder="Search contacts..." data-filter-theme="d" data-theme="d" data-divider-theme="d">
+    <!-- <ul id="selectContactList"  data-role="listview" data-autodividers="true"> -->
+    </ul>
+	</form> 
+    </div><!--/content-primary -->  
+	</div><!-- /content -->
+	    
+    <div data-role="footer" data-theme="b" data-position="fixed" data-fullscreen="true">
+        <a href="index.html" id="selectPicClip" name="selectPicClip">Back</a>
+    </div>  <!-- end of contet -->	
+</div> <!-- mail page -->
+
+</body>
+</html>
