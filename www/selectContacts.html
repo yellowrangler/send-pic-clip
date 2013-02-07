@@ -9,7 +9,7 @@
     <script type="text/javascript" src="js/cordova.ios.js"></script> 
     <script type="text/javascript" src="js/jquery-1.9.js"></script>	
     <script type="text/javascript" src="js/jquery-mobile-1.3.js"></script>
-
+   
 </head>
 
 <body>
@@ -17,9 +17,13 @@
 <div data-role="page" id="selectContactsPage" data-theme="d"> 
 
 <script type="text/javascript">    
+
     $('#selectContactsPage').bind('pageinit', function() {
+        // this line keeps top header from dissappering on tap
+        $("[data-role=header]").fixedtoolbar({ tapToggle: false });
+
         onDeviceReady();
-    });
+      });
 
      function onDeviceReady() {
         // alert("bdevice ready");
@@ -38,8 +42,13 @@
     // onSuccess: Get a snapshot of the current contacts
     //
     function onSuccess(contacts) {
-        var htmlLine = "";
 
+        //
+        // go through all contacts
+        //
+        var htmlLine = "";
+        var contactsListEmail = new Array();
+        var count = 0;
         for (var i=0; i<contacts.length; i++) {
             // alert(contacts[i].id+" "+contacts[i].name.formatted);
             if (contacts[i].phoneNumbers != null)
@@ -54,22 +63,67 @@
             if (contacts[i].emails == null)
                 continue;
 
+            var emailStr = new String("");
             for (var j=0; j<contacts[i].emails.length; j++)
             {
-                if (contacts[i].emails[j].type == "home")
-                {
-                    // var checkValueDisplay = contacts[i].name.formatted + " " + contacts[i].emails[j].value;
-                    var checkValueDisplay = contacts[i].emails[j].value;
-                    htmlLine = htmlLine + "<li><table><tr><td><input type='checkbox' name='checkbox-"+contacts[i].id+"' id='checkbox-"+contacts[i].id+"' class='custom' /></td>";
-                    htmlLine = htmlLine + "<td>"+checkValueDisplay+"</td></tr></table></li>";
-                }
-                // alert(contacts[i].emails[j].type+" "+contacts[i].emails[j].value);
-            }
-            
-            // var dname = "Display Name = " + contacts[i].name.formatted) + "/n";
-            // console.log(contacts[i]);
-            // alert(dname);
+                emailStr = contacts[i].emails[j].value;
+                contactsListEmail[count++] = emailStr.toLowerCase();
+            }   
         }
+
+        //
+        // sort the list
+        //
+        try
+        {
+            contactsListEmail.sort();
+        }
+        catch(err)
+        {
+            alert(err)
+        }
+        
+        //
+        // get locally saved contacts
+        //
+        try 
+        {
+            var localEmailArray = new Array();
+            for (var i = 0; i < localStorage.length; i++){
+                localEmailArray[i] = localStorage.getItem(localStorage.key(i));
+            }
+        }
+        catch(err)
+        {
+            alert(err);
+        }
+            
+        //
+        // build the page
+        //
+        var currentAlpha = "";
+        var compareAlpha = new String("");
+        var localCompare = 0;
+        var checkedStr = "";
+        for (var k=0; k<contactsListEmail.length; k++)
+        {
+            var checkValueDisplay = contactsListEmail[k];
+            compareAlpha = checkValueDisplay[0];
+
+            if (currentAlpha != compareAlpha.toUpperCase())
+            {
+                currentAlpha = compareAlpha.toUpperCase();
+                htmlLine = htmlLine + "<li data-role='list-divider'>"+currentAlpha+"</li>";
+            }
+            localCompare = localEmailArray.indexOf(checkValueDisplay);
+            if (localCompare == -1)
+                checkedStr = '';
+            else
+                checkedStr = 'checked';
+
+            htmlLine = htmlLine + "<li><table><tr><td><input type='checkbox' name='checkbox-"+k+"' id='checkbox-"+k+"' value='"+checkValueDisplay+"' class='custom' "+checkedStr+" /></td>";
+            htmlLine = htmlLine + "<td>"+checkValueDisplay+"</td></tr></table></li>";
+        }       
         // console.log(htmlLine);
 
         $("#selectContactList").append(htmlLine);
@@ -83,24 +137,54 @@
     function onError(contactError) {
         alert('onError!');
     }
+
+    //
+    // save selected contacts
+    //
+    function saveSelected() 
+    {
+        try 
+        {
+            //
+            // first remove all previously selected
+            //
+            localStorage.clear();
+
+            var nbr = 0;
+            $('input[type=checkbox]').each(function() {
+                if (this.checked)
+                {
+                    keyValue = 'spc'+nbr;
+                    localStorage.setItem(keyValue, $(this).val());
+                    // alert("This was checked: "+$(this).val() );
+                    nbr++;
+                }
+            });
+        }
+        catch(err)
+        {
+            alert(err);
+        }
+        
+        alert('Contacts Saved!');
+
+        $.mobile.changePage("index.html", { showLoadMsg: true} );
+    }
 </script>
-    <div data-role="header" data-theme="b" data-fullscreen="true">
+    <div data-role="header" data-theme="b" data-position="fixed" data-fullscreen="true">
         <h1>Select Contacts</h1>
     </div>
-    <br/>
 
-    <div data-role="content">	
-    <div class="content-primary">
-    <form>   
-    <ul id="selectContactList" data-role="listview" data-filter="true" data-filter-placeholder="Search contacts..." data-filter-theme="d" data-theme="d" data-divider-theme="d">
-    <!-- <ul id="selectContactList"  data-role="listview" data-autodividers="true"> -->
+    <div style="position:relative;top:50px;" data-role="content">	
+    <form action="showSelectedContacts.html" method="post">   
+    <ul id="selectContactList" data-role="listview" data-filter="true" data-filter-placeholder="Search contacts..." data-filter-theme="c" data-theme="d" data-divider-theme="b">
     </ul>
 	</form> 
-    </div><!--/content-primary -->  
 	</div><!-- /content -->
 	    
     <div data-role="footer" data-theme="b" data-position="fixed" data-fullscreen="true">
         <a href="index.html" id="selectPicClip" name="selectPicClip">Back</a>
+        <a href="#" onclick="saveSelected()" id="submitPicClip" name="submitPicClip">Save</a>
     </div>  <!-- end of contet -->	
 </div> <!-- mail page -->
 

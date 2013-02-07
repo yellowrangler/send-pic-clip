@@ -12,6 +12,7 @@
     </script>
 
     <script type="text/javascript" src="js/cordova.ios.js"></script> 
+    <script type="text/javascript" src="js/EmailComposer.js"></script> 
     <script type="text/javascript" src="js/jquery-1.9.js"></script>	
     <script type="text/javascript" src="js/jquery-mobile-1.3.js"></script>
 </head>
@@ -19,7 +20,7 @@
 <body>
 
 <script type="text/javascript">
- 
+
     // $(document).bind('pageinit', function() {
 
     //     $("#setName").click(function() {
@@ -36,9 +37,56 @@
     // });
 function changePage(page)
 {
-    $.mobile.changePage(page+".html");
+    $.mobile.changePage(page+".html", { showLoadMsg: true} );
 
 }
+
+function openMail()
+{
+  var args;
+window.plugins.emailComposer.showEmailComposerWithCallback(function(result){console.log(result);},"Look at this photo","Take a look at <b>this<b/>:",["example@email.com", "johndoe@email.org"],[],[],true,["_complete_path/image.jpg"]);
+  // Cordova.exec(null, null, "EmailComposer", "showEmailComposer", [args]);
+}
+
+
+function getPicture()
+{
+    //
+    // get picture source detsination
+    //
+    try 
+    {
+        var pictureSource=navigator.camera.PictureSourceType;
+        var destinationType=navigator.camera.DestinationType;
+    }
+    catch(err)
+    {
+        alert(err);
+    }
+
+    alert(pictureSource);
+    alert(destinationType);
+    
+    try 
+    {
+        navigator.camera.getPicture(onSuccess, onFail, { quality: 50 }); 
+    }
+    catch(err)
+    {
+        alert(er);
+    }
+}
+
+function onSuccess(imageData) {
+    var image = document.getElementById('myImage');
+    image.src = "data:image/jpeg;base64," + imageData;
+}
+
+function onFail(message) {
+    alert('Failed because: ' + message);
+}
+
+
         
 </script>
 
@@ -48,10 +96,8 @@ function changePage(page)
         <h1>SendPicClip</h1>
     </div>
 
-    
-    <div data-role="content">   
+    <div style="position:relative;top:10px;" data-role="content">   
     <form>    
-    <br />
     <table width="100%">
         <tr><td>&nbsp;</td></tr>
         <tr><td>&nbsp;</td></tr>
@@ -60,7 +106,7 @@ function changePage(page)
             <td><a href="#" onClick="changePage(this.id)" data-role="button" data-theme="e" id="selectContacts" name="selectContacts"/>Select Contacts</td>
         </tr>        
         <tr align="center"> 
-            <td><a href="#" onClick="changePage(this.id)" data-role="button" data-theme="e" id="sendPicture" name="sendPicture"/>Send Picture</td>
+            <td><a href="#" onClick="getPicture()" data-role="button" data-theme="e" id="sendPicture" name="sendPicture"/>Send Picture</td>
         </tr> 
         <tr align="center"> 
             <td><a href="#" onClick="changePage(this.id)" data-role="button" data-theme="e" id="sendVideo" name="sendPicture"/>Send Video</td>
@@ -70,7 +116,7 @@ function changePage(page)
     </div><!-- /content -->
 	
     <div data-role="footer" data-theme="b" data-position="fixed" data-fullscreen="true">
-        <a href="clearContacts.html" rel="external" id="clearContacts" name="clearContacts">Clear Contacts</a>
+        <a href="#" onclick="openMail()" id="openMailButton" name="openMailButton">Mail</a>
     </div>  <!-- end of contet -->
     
 </div><!-- name page -->
