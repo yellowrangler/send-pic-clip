@@ -38,7 +38,6 @@
 function changePage(page)
 {
     $.mobile.changePage(page+".html", { showLoadMsg: true} );
-
 }
 
 function openMail(source)
@@ -57,6 +56,7 @@ function openMail(source)
 	}
 	
 	// alert(emailList);
+	// 	alert(source);
 	
 	try
 	{
@@ -74,33 +74,62 @@ function openMail(source)
 	{
 		alert(err)
 	}
-
 }
 
 
 function getPicture()
 {
-      
-      try 
-      {
-          // Retrieve image file location from specified source
-    	      navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50 });
-      }
-      catch(err)
-      {
-          alert(err);
-      }
-  
+    try 
+    {
+        // Retrieve image file location from specified source
+		navigator.camera.getPicture(onPhotoSuccess, onFail, { quality: 50 });
+    }
+    catch(err)
+    {
+        alert(err);
+    }
 }
 
-function onPhotoDataSuccess(imageData) {
+function getVideo()
+{
+	var options = {};
 	
+    try 
+    {
+        // Retrieve video file location from specified source
+ 	      navigator.device.capture.captureVideo(onVideoSuccess, onFail, options);
+    }
+    catch(err)
+    {
+        alert(err);
+    }
+}
+
+function onVideoSuccess(mediaFiles) 
+{
+	try
+	{
+		var path;
+	    if  (mediaFiles.length == 1) 
+		{
+			path = mediaFiles[0].fullPath;
+			openMail(path);
+	    }		
+	}
+	catch(err)
+	{
+		alert(err);
+	}
+}
+
+function onPhotoSuccess(imageData) 
+{	
     try 
     {
         // Send Image via email image file location from specified source
 		var str = imageData.replace("file://localhost/","");
   		// var source = "data:image/jpeg;base64," + str;
-		alert(str);
+		// alert(str);
   		openMail(str)
   	}
 	catch(err)
@@ -132,10 +161,10 @@ function onFail(message) {
             <td><a href="#" onClick="changePage(this.id)" data-role="button" data-theme="e" id="selectContacts" name="selectContacts"/>Select Contacts</td>
         </tr>        
         <tr align="center"> 
-            <td><a href="#" onClick="getPicture()" data-role="button" data-theme="e" id="sendPicture" name="sendPicture"/>Send Picture</td>
+            <td><a href="#" onClick="getPicture()" data-role="button" data-theme="e" id="sendPicture" name="sendPicture"/>Picture</td>
         </tr> 
         <tr align="center"> 
-            <td><a href="#" onClick="changePage(this.id)" data-role="button" data-theme="e" id="sendVideo" name="sendPicture"/>Send Video</td>
+            <td><a href="#" onClick="getVideo()" data-role="button" data-theme="e" id="sendVideo" name="sendVideo"/>Video</td>
         </tr>
     </table> 
     </form>                       
