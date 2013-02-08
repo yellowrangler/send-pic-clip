@@ -82,7 +82,7 @@ function getPicture()
     try 
     {
         // Retrieve image file location from specified source
-		navigator.camera.getPicture(onPhotoSuccess, onFail, { quality: 50 });
+		navigator.camera.getPicture(onPhotoSuccess, onFailPicture, { quality: 50 });
     }
     catch(err)
     {
@@ -97,7 +97,7 @@ function getVideo()
     try 
     {
         // Retrieve video file location from specified source
- 	      navigator.device.capture.captureVideo(onVideoSuccess, onFail, options);
+ 	      navigator.device.capture.captureVideo(onVideoSuccess, onFailVideo, options);
     }
     catch(err)
     {
@@ -130,7 +130,7 @@ function onPhotoSuccess(imageData)
 		var str = imageData.replace("file://localhost/","");
   		// var source = "data:image/jpeg;base64," + str;
 		// alert(str);
-  		openMail(str)
+  		openMail(str);
   	}
 	catch(err)
 	{
@@ -138,11 +138,22 @@ function onPhotoSuccess(imageData)
 	}
 }
 
-function onFail(message) {
-    alert('Failed because: ' + message);
+function onFailVideo(message) 
+{
+	alert('Failed because: ' + message.code);
 }
 
+function onFailPicture(message) 
+{
+	alert('Failed because: ' + message);
+}
 
+function clearContacts() 
+{
+	localStorage.clear();
+	
+	alert("Selected Contacts Cleared");
+}
 </script>
 
 <!-- Start page -->
@@ -151,28 +162,29 @@ function onFail(message) {
         <h1>SendPicClip</h1>
     </div>
 
-    <div style="position:relative;top:10px;" data-role="content">   
-    <form>    
+    <form>
+    <div style="position:relative;" data-role="content">       
     <table width="100%">
         <tr><td>&nbsp;</td></tr>
         <tr><td>&nbsp;</td></tr>
-         <tr align="center"> 
-            <!-- <td><a href="http://SelectContacts.html" data-role="button" data-theme="e" id="SelectContacts" name="SelectContacts"/>Select Contacts</td> -->
-            <td><a href="#" onClick="changePage(this.id)" data-role="button" data-theme="e" id="selectContacts" name="selectContacts"/>Select Contacts</td>
-        </tr>        
         <tr align="center"> 
             <td><a href="#" onClick="getPicture()" data-role="button" data-theme="e" id="sendPicture" name="sendPicture"/>Picture</td>
         </tr> 
         <tr align="center"> 
             <td><a href="#" onClick="getVideo()" data-role="button" data-theme="e" id="sendVideo" name="sendVideo"/>Video</td>
         </tr>
-    </table> 
-    </form>                       
+		<tr><td>&nbsp;</td></tr>
+        <tr><td>&nbsp;</td></tr>
+         <tr align="center"> 
+            <td><a href="#" onClick="changePage(this.id)" data-role="button" data-theme="e" id="selectContacts" name="selectContacts"/>Select Contacts</td>
+        </tr>        
+    </table>                     
     </div><!-- /content -->
-	
+    </form>
+   
     <div data-role="footer" data-theme="b" data-position="fixed" data-fullscreen="true">
-        <a href="#" onclick="openMail()" id="openMailButton" name="openMailButton">Mail</a>
-    </div>  <!-- end of contet -->
+        <a href="#" style="float:right;" onclick="clearContacts()" id="clearContactsButton" name="clearContactsButton">Clear All Contacts</a>
+    </div>  <!-- end of content -->
     
 </div><!-- name page -->
 </body>
