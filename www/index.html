@@ -41,45 +41,50 @@ function changePage(page)
 
 }
 
-function openMail()
+function openMail(source)
 {
   var args;
-window.plugins.emailComposer.showEmailComposerWithCallback(function(result){console.log(result);},"Look at this photo","Take a look at <b>this<b/>:",["example@email.com", "johndoe@email.org"],[],[],true,["_complete_path/image.jpg"]);
-  // Cordova.exec(null, null, "EmailComposer", "showEmailComposer", [args]);
+	window.plugins.emailComposer.showEmailComposerWithCallback(function(result) {
+ 	console.log(result);
+ 	},"Look at this photo",
+ 	"Take a look at <b>this<b/>:",
+ 	["tarrant.cutler@gmail.com", "tarrant.cutler@gmail.com"],
+ 	[],
+ 	[],true,
+ 	[source]);
+  Cordova.exec(null, null, "EmailComposer", "showEmailComposer", [args]);
 }
 
 
 function getPicture()
 {
-    //
-    // get picture source detsination
-    //
-    try 
-    {
-        var pictureSource=navigator.camera.PictureSourceType;
-        var destinationType=navigator.camera.DestinationType;
-    }
-    catch(err)
-    {
-        alert(err);
-    }
-
-    alert(pictureSource);
-    alert(destinationType);
-    
-    try 
-    {
-        navigator.camera.getPicture(onSuccess, onFail, { quality: 50 }); 
-    }
-    catch(err)
-    {
-        alert(er);
-    }
+      
+      try 
+      {
+          // Retrieve image file location from specified source
+    	      navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50 });
+      }
+      catch(err)
+      {
+          alert(err);
+      }
+  
 }
 
-function onSuccess(imageData) {
-    var image = document.getElementById('myImage');
-    image.src = "data:image/jpeg;base64," + imageData;
+function onPhotoDataSuccess(imageData) {
+	
+    try 
+    {
+        // Send Image via email image file location from specified source
+		var str = imageData.replace("file://localhost/","");
+  		// var source = "data:image/jpeg;base64," + str;
+		
+  		openMail(str)
+  	}
+	catch(err)
+	{
+	   alert(err);
+	}
 }
 
 function onFail(message) {
@@ -87,7 +92,6 @@ function onFail(message) {
 }
 
 
-        
 </script>
 
 <!-- Start page -->
