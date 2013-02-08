@@ -43,16 +43,38 @@ function changePage(page)
 
 function openMail(source)
 {
-  var args;
-	window.plugins.emailComposer.showEmailComposerWithCallback(function(result) {
- 	console.log(result);
- 	},"Look at this photo",
- 	"Take a look at <b>this<b/>:",
- 	["tarrant.cutler@gmail.com", "tarrant.cutler@gmail.com"],
- 	[],
- 	[],true,
- 	[source]);
-  Cordova.exec(null, null, "EmailComposer", "showEmailComposer", [args]);
+	try
+	{
+		var emailList = new Array();
+		for (var i = 0; i < localStorage.length; i++)
+		{
+	        emailList[i] = localStorage.getItem(localStorage.key(i));	
+	    }		
+	}
+	catch(err)
+	{
+		alert(err)
+	}
+	
+	// alert(emailList);
+	
+	try
+	{
+		window.plugins.emailComposer.showEmailComposerWithCallback(function(result) {
+	 	console.log(result);
+	 	},"What I am seeing today",
+	 	"Take a look at this picture:",
+	 	emailList,
+	 	[],
+	 	[],
+		true,
+	 	[source]);
+	}
+	catch(err)
+	{
+		alert(err)
+	}
+
 }
 
 
@@ -78,7 +100,7 @@ function onPhotoDataSuccess(imageData) {
         // Send Image via email image file location from specified source
 		var str = imageData.replace("file://localhost/","");
   		// var source = "data:image/jpeg;base64," + str;
-		
+		alert(str);
   		openMail(str)
   	}
 	catch(err)
