@@ -59,17 +59,19 @@ function openMail(source)
 	}
 	catch(err)
 	{
-		alert(err)
+		alert(err);
 	}
 	
 	// alert(emailList);
 	// 	alert(source);
+	// setTimeout(function(){},3000);
 	
 	try
 	{
-		window.plugins.emailComposer.showEmailComposerWithCallback(function(result) {
-	 	console.log(result);
-	 	},"What I am seeing today",
+		sendMail(function(result) {
+	 	console.log("result:"+result);
+	 	},
+		"What I am seeing today",
 	 	"Take a look at this picture:",
 	 	emailList,
 	 	[],
@@ -79,10 +81,23 @@ function openMail(source)
 	}
 	catch(err)
 	{
-		alert(err)
+		console.log("err:"+err);
+		alert("err:"+err);
 	}
 }
 
+function sendMail(callback, subject, body, tolist, cclist, bcclist, htmltype, attachment)
+{
+	// alert("in send mail")
+	try
+	{
+		window.plugins.emailComposer.showEmailComposerWithCallback(callback, subject, body, tolist, cclist, bcclist, htmltype, attachment);
+	}
+	catch(err)
+	{
+		alert("err:"+err);
+	}
+}
 
 function getPicture()
 {
@@ -131,6 +146,7 @@ function onVideoSuccess(mediaFiles)
 
 function onPhotoSuccess(imageData) 
 {	
+	// alert("in success photo");
     try 
     {
         // Send Image via email image file location from specified source
@@ -195,10 +211,10 @@ function changePage(page)
         <tr><td>&nbsp;</td></tr>
         <tr><td>&nbsp;</td></tr>
         <tr align="center"> 
-            <td><a href="#" onClick="checkContacts(this.id)" data-role="button" data-theme="e" id="sendPicture" name="sendPicture"/>Picture</td>
+            <td><a href="#" onClick="checkContacts(this.id)" data-role="button" data-theme="e" id="sendPicture" name="sendPicture"/>Take Picture</td>
         </tr> 
         <tr align="center"> 
-            <td><a href="#" onClick="checkContacts(this.id)" data-role="button" data-theme="e" id="sendVideo" name="sendVideo"/>Video</td>
+            <td><a href="#" onClick="checkContacts(this.id)" data-role="button" data-theme="e" id="sendVideo" name="sendVideo"/>Take Video</td>
         </tr>
 		<tr><td>&nbsp;</td></tr>
         <tr><td>&nbsp;</td></tr>
