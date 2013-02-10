@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Clear Contacts Dialog</title>
+</head><!-- Dialogs for page -->
+<div id="contactsCleared" data-role="dialog">
+	<script type="text/javascript">
+	function changeToMainPage() 
+	{
+		$.mobile.changePage("index.html");
+	}
+	</script>	
+	<div data-role="header" data-theme="b">
+        <h1>Message Dialog</h1>
+    </div>
+	<div style="position:relative;" data-role="content">       
+    <table width="100%">
+        <tr><td>&nbsp;</td></tr>
+        <tr><td>Selected Contacts have been cleared!</td></tr>
+		<tr><td>&nbsp;</td></tr>
+    </table>               
+	<input id="okButton" name="okButton" type="button" value="Ok" data-theme="e" onclick="changeToMainPage();" />      
+    </div><!-- /content -->
+</div> <!-- end of dialog -->
+</body>
+</html>

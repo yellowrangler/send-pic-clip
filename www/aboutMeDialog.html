@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>About Me Dialog</title>
+</head><!-- Dialogs for page -->
+<div id="noContactsSelected" data-role="dialog">
+	<script type="text/javascript">
+	function changeToMainPage() 
+	{
+		$.mobile.changePage("index.html");
+	}
+	</script>	
+	<div data-role="header" data-theme="b">
+        <h1>About Me</h1>
+    </div>
+	<div style="position:relative;" data-role="content">       
+    <table width="100%">
+		<tr>	
+           <td align="center"style="font:500 24px Verdana, Geneva, sans-serif; color:teal;">
+           <center><img  height="75" src="images/tarry.jpg" border="0" class="homeLogo"></center>
+       </td>
+        <tr><td>My name is Tarry Cutler and I wrote this using Cordova and jQuery Mobile. I hope you enjoy it!</td></tr>
+		<tr><td>&nbsp;</td></tr>
+		<tr><td>You can contact me at yellowrangler.me@gmail.com!</td></tr>
+        
+    </table>               
+	<input id="okButton" name="okButton" type="button" value="Ok" data-theme="e" onclick="changeToMainPage();" />     
+    </div><!-- /content -->
+</div> <!-- end of dialog -->
+</body>
+</html>

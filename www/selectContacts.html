@@ -2,21 +2,13 @@
 <html>
 <head>
 	<title>Select Contacts</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1"> 
-	
-	<link rel="stylesheet" type="text/css" href="css/jquery-mobile-1.3.css" />
-
-    <script type="text/javascript" src="js/cordova.ios.js"></script> 
-    <script type="text/javascript" src="js/jquery-1.9.js"></script>	
-    <script type="text/javascript" src="js/jquery-mobile-1.3.js"></script>
-   
 </head>
 
 <body>
 <!-- Start of main page -->
 <div data-role="page" id="selectContactsPage" data-theme="d"> 
 
-<script type="text/javascript">    
+	<script type="text/javascript">    
 
     $('#selectContactsPage').bind('pageinit', function() {
         // this line keeps top header from dissappering on tap
@@ -26,12 +18,10 @@
       });
 
      function onDeviceReady() {
-        // alert("bdevice ready");
-        // // find all contacts with 'Bob' in any name field
         var options = new ContactFindOptions();
         options.filter=""; 
         options.multiple=true;
-        // // var fields = ["emails", "name"];
+        // var fields = ["emails", "name"];
 
         var fields = ["*"];
         // alert("before find");
@@ -80,7 +70,7 @@
         }
         catch(err)
         {
-            alert(err)
+            alert(err);
         }
         
         //
@@ -113,7 +103,7 @@
             if (currentAlpha != compareAlpha.toUpperCase())
             {
                 currentAlpha = compareAlpha.toUpperCase();
-                htmlLine = htmlLine + "<li data-role='list-divider'>"+currentAlpha+"</li>";
+                htmlLine = htmlLine + "<li style='padding-left:20px;' data-role='list-divider'>"+currentAlpha+"</li>";
             }
             localCompare = localEmailArray.indexOf(checkValueDisplay);
             if (localCompare == -1)
@@ -121,7 +111,7 @@
             else
                 checkedStr = 'checked';
 
-            htmlLine = htmlLine + "<li><table><tr><td><input type='checkbox' name='checkbox-"+k+"' id='checkbox-"+k+"' value='"+checkValueDisplay+"' class='custom' "+checkedStr+" /></td>";
+            htmlLine = htmlLine + "<li style='padding-left:20px;'><table><tr><td><input type='checkbox' name='checkbox-"+k+"' id='checkbox-"+k+"' value='"+checkValueDisplay+"' class='custom' "+checkedStr+" /></td>";
             htmlLine = htmlLine + "<td>"+checkValueDisplay+"</td></tr></table></li>";
         }       
         // console.log(htmlLine);
@@ -166,14 +156,23 @@
             alert(err);
         }
         
-        alert('Contacts Saved!');
-
-        $.mobile.changePage("index.html", { showLoadMsg: true} );
+        // alert('Contacts Saved!');
+		try
+		{
+			$.mobile.changePage("saveContactsDialog.html",{role:"dialog"});
+		}
+		catch(err)
+		{
+			alert(err);
+		}
+		
     }
-</script>
+
+	</script>
+	
     <div data-role="header" data-theme="b" data-position="fixed" data-fullscreen="true">
         <h1>Select Contacts</h1>
-    </div>
+    </div> <!-- end of header -->
 
     <div style="position:relative;top:50px;" data-role="content">	
     <form action="showSelectedContacts.html" method="post">   
@@ -185,8 +184,22 @@
     <div data-role="footer" data-theme="b" data-position="fixed" data-fullscreen="true">
         <a href="index.html" id="selectPicClip" name="selectPicClip">Back</a>
         <a style="float:right" href="#" onclick="saveSelected()" id="submitPicClip" name="submitPicClip">Save</a>
-    </div>  <!-- end of contet -->	
-</div> <!-- mail page -->
+    </div>  <!-- end of content -->	
+</div> <!-- selectContactsPage page -->
 
+<!-- Dialogs for page -->
+<div id="contactsSaved" name="contactsSaved" data-role="dialog">
+	<div data-role="header" data-theme="b">
+        <h1>Message Dialog</h1>
+    </div>
+	<div data-role="content">       
+    <table width="100%">
+        <tr><td>&nbsp;</td></tr>
+        <tr><td>All Selected Contacts have been saved!</td></tr>
+		<tr><td>&nbsp;</td></tr>
+    </table>               
+	<input id="contactsSavedButton" name="contactsSavedButton" type="button" value="Ok" data-theme="e" onclick="changeToMainPage();" />      
+    </div><!-- /content -->
+</div> <!-- end of dialog -->
 </body>
 </html>

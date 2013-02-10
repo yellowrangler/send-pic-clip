@@ -6,38 +6,45 @@
 	
 	<link rel="stylesheet" type="text/css" href="css/jquery-mobile-1.3.css" />
 
+	<style>
+	.ui-header .ui-title {
+	    margin-right: 5%;
+	    margin-left: 5%;
+	}
+	</style>
+    <script type="text/javascript" src="js/cordova.ios.js"></script> 
+    <script type="text/javascript" src="js/EmailComposer.js"></script> 
+    <script type="text/javascript" src="js/jquery-1.9.js"></script>	
+    <script type="text/javascript" src="js/jquery-mobile-1.3.js"></script>
+
     <script>
         [data-role=footer]{bottom:0;right:0;top:auto! important ;position:absolute !important; } 
         [data-role=header]{top:0; position:absolute !important; bottom: auto !important;}
     </script>
 
-    <script type="text/javascript" src="js/cordova.ios.js"></script> 
-    <script type="text/javascript" src="js/EmailComposer.js"></script> 
-    <script type="text/javascript" src="js/jquery-1.9.js"></script>	
-    <script type="text/javascript" src="js/jquery-mobile-1.3.js"></script>
 </head>
 
 <body>
 
 <script type="text/javascript">
+$(document).bind('pageinit', function() {
+    if (typeof(localStorage) == 'undefined')
+    {
+        alert ("local storage not supported");
+    }
+ });
 
-    // $(document).bind('pageinit', function() {
-
-    //     $("#setName").click(function() {
-    //         if (typeof(localStorage) == 'undefined')
-    //         {
-    //             alert ("local storage not supported");
-    //         }
-    //         else
-    //         {
-    //             var yourName = $("#lname").val(); 
-    //             localStorage.setItem("youname",yourName);
-    //         }
-    //     });
-    // });
-function changePage(page)
+function checkContacts (item)
 {
-    $.mobile.changePage(page+".html", { showLoadMsg: true} );
+	if (localStorage.length < 1)
+		$.mobile.changePage("noContactsDialog.html");
+	else
+	{
+		if (item =="sendPicture")
+			getPicture();
+		if (item =="sendVideo") 
+			getVideo();
+	}		
 }
 
 function openMail(source)
@@ -152,12 +159,32 @@ function clearContacts()
 {
 	localStorage.clear();
 	
-	alert("Selected Contacts Cleared");
+	//alert("Selected Contacts Cleared");
+	$.mobile.changePage("showClearedContacts.html");
 }
+
+function changeToMainPage() 
+{
+	$.mobile.changePage("#sendPicClipPage");
+}
+
+function aboutMeDialog() 
+{
+	$.mobile.changePage("aboutMeDialog.html");
+}
+
+function changePage(page)
+{
+    $.mobile.changePage(page+".html", { showLoadMsg: true} );
+}
+
 </script>
 
 <!-- Start page -->
-<div data-role="page" id="namePage" data-theme="d"> 
+<div data-role="page" id="sendPicClipPage" data-theme="d"> 
+<script type="text/javascript">	
+
+</script>
     <div data-role="header" data-theme="b" data-fullscreen="true">
         <h1>SendPicClip</h1>
     </div>
@@ -168,24 +195,29 @@ function clearContacts()
         <tr><td>&nbsp;</td></tr>
         <tr><td>&nbsp;</td></tr>
         <tr align="center"> 
-            <td><a href="#" onClick="getPicture()" data-role="button" data-theme="e" id="sendPicture" name="sendPicture"/>Picture</td>
+            <td><a href="#" onClick="checkContacts(this.id)" data-role="button" data-theme="e" id="sendPicture" name="sendPicture"/>Picture</td>
         </tr> 
         <tr align="center"> 
-            <td><a href="#" onClick="getVideo()" data-role="button" data-theme="e" id="sendVideo" name="sendVideo"/>Video</td>
+            <td><a href="#" onClick="checkContacts(this.id)" data-role="button" data-theme="e" id="sendVideo" name="sendVideo"/>Video</td>
         </tr>
 		<tr><td>&nbsp;</td></tr>
         <tr><td>&nbsp;</td></tr>
          <tr align="center"> 
-            <td><a href="#" onClick="changePage(this.id)" data-role="button" data-theme="e" id="selectContacts" name="selectContacts"/>Select Contacts</td>
-        </tr>        
+            <td><a href="#" onClick="changePage(this.id)" rel="external" data-role="button" data-theme="b" id="selectContacts" name="selectContacts"/>Select Contacts</td>
+        </tr>
+		<tr align="center"> 
+            <td><a href="#" onClick="changePage(this.id)" rel="external" data-role="button" data-theme="b" id="viewSelectedContacts" name="viewSelectedContacts"/>View Selected Contacts</td>
+        </tr> 
+		<tr align="center"> 
+            <td><a href="#" onClick="clearContacts()" data-role="button" data-theme="b" id="clearContactsButton" name="clearContactsButton"/>Clear Selected Contacts</td>
+        </tr>       
     </table>                     
     </div><!-- /content -->
     </form>
    
     <div data-role="footer" data-theme="b" data-position="fixed" data-fullscreen="true">
-        <a href="#" style="float:right;" onclick="clearContacts()" id="clearContactsButton" name="clearContactsButton">Clear All Contacts</a>
+        <a href="#" style="float:right;" onclick="aboutMeDialog()" id="aboutMeButton" name="aboutMeButton">About Me</a>
     </div>  <!-- end of content -->
-    
-</div><!-- name page -->
+</div><!-- sendPicClipPage page -->
 </body>
 </html>

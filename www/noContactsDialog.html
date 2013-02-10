@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>No Contacts Dialog</title>
+</head><!-- Dialogs for page -->
+<div id="noContactsSelected" data-role="dialog">
+	<script type="text/javascript">
+	function changeToMainPage() 
+	{
+		$.mobile.changePage("index.html");
+	}
+	function changeToselectContactsPage() 
+	{
+		$.mobile.changePage("selectContacts.html");
+	}
+	</script>	
+	<div data-role="header" data-theme="b">
+        <h1>Message Dialog</h1>
+    </div>
+	<div style="position:relative;" data-role="content">       
+    <table width="100%">
+        <tr><td>&nbsp;</td></tr>
+        <tr><td>You have no Selected Contacts. You will must select at least one contact for pictures or videos receipt! </td></tr>
+		<tr><td>&nbsp;</td></tr>
+    </table>               
+	<input id="okButton" name="okButton" type="button" value="Ok" data-theme="e" onclick="changeToMainPage();" /> 
+	<input id="selectContactsButton" name="selectContactsButton" type="button" value="Select Contacts" data-theme="e" onclick="changeToselectContactsPage();" />      
+    </div><!-- /content -->
+</div> <!-- end of dialog -->
+</body>
+</html>
