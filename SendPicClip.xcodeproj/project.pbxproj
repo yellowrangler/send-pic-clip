@@ -44,6 +44,9 @@
 		30E5649213A7FCAF007403D8 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30E5649113A7FCAF007403D8 /* CoreMedia.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		587F755416C4693E00C412AA /* EmailComposer.m in Sources */ = {isa = PBXBuildFile; fileRef = 587F755316C4693E00C412AA /* EmailComposer.m */; };
 		587F755616C46A0300C412AA /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 587F755516C46A0300C412AA /* MessageUI.framework */; };
+		58D2A9D716C9A8F500EAED0C /* sendpicclicp-icon114x114.png in Resources */ = {isa = PBXBuildFile; fileRef = 58D2A9D616C9A8F500EAED0C /* sendpicclicp-icon114x114.png */; };
+		58D2A9D916C9A9A900EAED0C /* sendpicclicp-icon57x67.png in Resources */ = {isa = PBXBuildFile; fileRef = 58D2A9D816C9A9A900EAED0C /* sendpicclicp-icon57x67.png */; };
+		58D2A9DD16C9ABB800EAED0C /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 58D2A9DC16C9ABB800EAED0C /* Default-568h@2x.png */; };
 		D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */; };
 /* End PBXBuildFile section */
 
@@ -107,6 +110,10 @@
 		587F755216C4693E00C412AA /* EmailComposer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmailComposer.h; sourceTree = "<group>"; };
 		587F755316C4693E00C412AA /* EmailComposer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmailComposer.m; sourceTree = "<group>"; };
 		587F755516C46A0300C412AA /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		58D2A9D616C9A8F500EAED0C /* sendpicclicp-icon114x114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sendpicclicp-icon114x114.png"; sourceTree = "<group>"; };
+		58D2A9D816C9A9A900EAED0C /* sendpicclicp-icon57x67.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sendpicclicp-icon57x67.png"; sourceTree = "<group>"; };
+		58D2A9DA16C9AB2800EAED0C /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		58D2A9DC16C9ABB800EAED0C /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* SendPicClip-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "SendPicClip-Info.plist"; path = "../SendPicClip-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 		D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x~iphone.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -178,6 +185,10 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				58D2A9DC16C9ABB800EAED0C /* Default-568h@2x.png */,
+				58D2A9DA16C9AB2800EAED0C /* Default@2x.png */,
+				58D2A9D816C9A9A900EAED0C /* sendpicclicp-icon57x67.png */,
+				58D2A9D616C9A8F500EAED0C /* sendpicclicp-icon114x114.png */,
 				301BF56E109A69640062928A /* www */,
 				301BF52D109A57CC0062928A /* CordovaLib.xcodeproj */,
 				080E96DDFE201D6D7F000001 /* Classes */,
@@ -389,6 +400,9 @@
 				3088BBC1154F3926009F9C59 /* Default@2x~iphone.png in Resources */,
 				3088BBC2154F3926009F9C59 /* Default~iphone.png in Resources */,
 				D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */,
+				58D2A9D716C9A8F500EAED0C /* sendpicclicp-icon114x114.png in Resources */,
+				58D2A9D916C9A9A900EAED0C /* sendpicclicp-icon57x67.png in Resources */,
+				58D2A9DD16C9ABB800EAED0C /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -484,7 +498,7 @@
 				INFOPLIST_FILE = "SendPicClip/SendPicClip-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				PRODUCT_NAME = SendPicClip;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -501,7 +515,7 @@
 				INFOPLIST_FILE = "SendPicClip/SendPicClip-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				PRODUCT_NAME = SendPicClip;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

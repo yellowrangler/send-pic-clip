@@ -64,8 +64,6 @@ function openMail(source)
 	
 	// alert(emailList);
 	// 	alert(source);
-	// setTimeout(function(){},3000);
-	
 	try
 	{
 		sendMail(function(result) {
@@ -151,9 +149,8 @@ function onPhotoSuccess(imageData)
     {
         // Send Image via email image file location from specified source
 		var str = imageData.replace("file://localhost/","");
-  		// var source = "data:image/jpeg;base64," + str;
-		// alert(str);
-  		openMail(str);
+	 	alert("Do It!");
+		openMail(str);
   	}
 	catch(err)
 	{
@@ -206,7 +203,7 @@ function changePage(page)
     </div>
 
     <form>
-    <div style="position:relative;" data-role="content">       
+    <div data-role="content">       
     <table width="100%">
         <tr><td>&nbsp;</td></tr>
         <tr><td>&nbsp;</td></tr>
