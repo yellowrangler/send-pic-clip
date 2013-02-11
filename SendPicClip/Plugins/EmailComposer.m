@@ -116,7 +116,7 @@
                 }
                 @catch (NSException *exception) {
                     // DLog(@"Cannot attach file at path %@; error: %@", path, exception);
-					NSLog(@"Cannot attach file at path %@; error: %@", path, exception);
+                    NSLog(@"Cannot attach file at path %@; error: %@", path, exception);
                 }
             }
         }

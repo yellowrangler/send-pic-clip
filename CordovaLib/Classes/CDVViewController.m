@@ -21,11 +21,21 @@
 #import "CDV.h"
 #import "CDVCommandQueue.h"
 #import "CDVCommandDelegateImpl.h"
+#import "CDVConfigParser.h"
+#import "CDVUserAgentUtil.h"
 
 #define degreesToRadian(x) (M_PI * (x) / 180.0)
 
-@interface CDVViewController ()
+#define kSplashScreenStateShow 0
+#define kSplashScreenStateHide 1
 
+#define kSplashScreenDurationDefault 2.0f
+
+@interface CDVViewController () {
+    NSInteger _userAgentLockToken;
+}
+
+@property (nonatomic, readwrite, strong) NSXMLParser* configParser;
 @property (nonatomic, readwrite, strong) NSDictionary* settings;
 @property (nonatomic, readwrite, strong) CDVWhitelist* whitelist;
 @property (nonatomic, readwrite, strong) NSMutableDictionary* pluginObjects;
@@ -37,16 +47,19 @@
 @property (nonatomic, readwrite, strong) UIImageView* imageView;
 @property (readwrite, assign) BOOL initialized;
 
+@property (atomic, strong) NSURL* openURL;
+
 @end
 
 @implementation CDVViewController
 
 @synthesize webView, supportedOrientations;
 @synthesize pluginObjects, pluginsMap, whitelist;
-@synthesize settings, loadFromString;
+@synthesize configParser, settings, loadFromString;
 @synthesize imageView, activityView, useSplashScreen;
-@synthesize wwwFolderName, startPage, invokeString, initialized;
+@synthesize wwwFolderName, startPage, initialized, openURL;
 @synthesize commandDelegate = _commandDelegate;
+@synthesize commandQueue = _commandQueue;
 
 - (void)__init
 {
@@ -54,7 +67,7 @@
         _commandQueue = [[CDVCommandQueue alloc] initWithViewController:self];
         _commandDelegate = [[CDVCommandDelegateImpl alloc] initWithViewController:self];
         [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receivedOrientationChange)
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receivedOrientationChange:)
                                                      name:UIDeviceOrientationDidChangeNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAppWillTerminate:)
                                                      name:UIApplicationWillTerminateNotification object:nil];
@@ -63,28 +76,22 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAppDidBecomeActive:)
                                                      name:UIApplicationDidBecomeActiveNotification object:nil];
 
-        if (IsAtLeastiOSVersion(@"4.0")) {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAppWillEnterForeground:)
-                                                         name:UIApplicationWillEnterForegroundNotification object:nil];
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAppDidEnterBackground:)
-                                                         name:UIApplicationDidEnterBackgroundNotification object:nil];
-        }
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAppWillEnterForeground:)
+                                                     name:UIApplicationWillEnterForegroundNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAppDidEnterBackground:)
+                                                     name:UIApplicationDidEnterBackgroundNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleOpenURL:) name:CDVPluginHandleOpenURLNotification object:nil];
 
         // read from UISupportedInterfaceOrientations (or UISupportedInterfaceOrientations~iPad, if its iPad) from -Info.plist
         self.supportedOrientations = [self parseInterfaceOrientations:
             [[[NSBundle mainBundle] infoDictionary] objectForKey:@"UISupportedInterfaceOrientations"]];
 
-        self.wwwFolderName = @"www";
-        self.startPage = @"index.html";
-
         [self printMultitaskingInfo];
         [self printDeprecationNotice];
         self.initialized = YES;
 
-        // load Cordova.plist settings
+        // load config.xml settings
         [self loadSettings];
-        // set the whitelist
-        self.whitelist = [[CDVWhitelist alloc] initWithArray:[self.settings objectForKey:@"ExternalHosts"]];
     }
 }
 
@@ -128,28 +135,48 @@
     NSLog(@"Multi-tasking -> Device: %@, App: %@", (backgroundSupported ? @"YES" : @"NO"), (![exitsOnSuspend intValue]) ? @"YES" : @"NO");
 }
 
+- (BOOL)URLisAllowed:(NSURL*)url
+{
+    if (self.whitelist == nil) {
+        return YES;
+    }
+
+    return [self.whitelist URLIsAllowed:url];
+}
+
 - (void)loadSettings
 {
+    CDVConfigParser* delegate = [[CDVConfigParser alloc] init];
+
+    // read from config.xml in the app bundle
+    NSString* path = [[NSBundle mainBundle] pathForResource:@"config" ofType:@"xml"];
+
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        NSAssert(NO, @"ERROR: config.xml does not exist. Please run cordova-ios/bin/cordova_plist_to_config_xml path/to/project.");
+        return;
+    }
+
+    NSURL* url = [NSURL fileURLWithPath:path];
+
+    configParser = [[NSXMLParser alloc] initWithContentsOfURL:url];
+    if (configParser == nil) {
+        NSLog(@"Failed to initialize XML parser.");
+        return;
+    }
+    [configParser setDelegate:((id < NSXMLParserDelegate >)delegate)];
+    [configParser parse];
+
+    // Get the plugin dictionary, whitelist and settings from the delegate.
+    self.pluginsMap = [delegate.pluginsDict dictionaryWithLowercaseKeys];
+    self.whitelist = [[CDVWhitelist alloc] initWithArray:delegate.whitelistHosts];
+    self.settings = delegate.settings;
+
+    // And the start folder/page.
+    self.wwwFolderName = @"www";
+    self.startPage = [delegate getStartPage];
+
+    // Initialize the plugin objects dict.
     self.pluginObjects = [[NSMutableDictionary alloc] initWithCapacity:4];
-
-    // read from Cordova.plist in the app bundle
-    NSString* appPlistName = @"Cordova";
-    NSDictionary* cordovaPlist = [[self class] getBundlePlist:appPlistName];
-    if (cordovaPlist == nil) {
-        NSLog(@"WARNING: %@.plist is missing.", appPlistName);
-        return;
-    }
-    self.settings = [[NSDictionary alloc] initWithDictionary:cordovaPlist];
-
-    // read from Plugins dict in Cordova.plist in the app bundle
-    NSString* pluginsKey = @"Plugins";
-    NSDictionary* pluginsDict = [self.settings objectForKey:@"Plugins"];
-    if (pluginsDict == nil) {
-        NSLog(@"WARNING: %@ key in %@.plist is missing! Cordova will not work, you need to have this key.", pluginsKey, appPlistName);
-        return;
-    }
-
-    self.pluginsMap = [pluginsDict dictionaryWithLowercaseKeys];
 }
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
@@ -157,17 +184,23 @@
 {
     [super viewDidLoad];
 
-    NSString* startFilePath = [_commandDelegate pathForResource:self.startPage];
     NSURL* appURL = nil;
     NSString* loadErr = nil;
 
-    if (startFilePath == nil) {
-        loadErr = [NSString stringWithFormat:@"ERROR: Start Page at '%@/%@' was not found.", self.wwwFolderName, self.startPage];
-        NSLog(@"%@", loadErr);
-        self.loadFromString = YES;
-        appURL = nil;
+    if ([self.startPage rangeOfString:@"://"].location != NSNotFound) {
+        appURL = [NSURL URLWithString:self.startPage];
+    } else if ([self.wwwFolderName rangeOfString:@"://"].location != NSNotFound) {
+        appURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", self.wwwFolderName, self.startPage]];
     } else {
-        appURL = [NSURL fileURLWithPath:startFilePath];
+        NSString* startFilePath = [self.commandDelegate pathForResource:self.startPage];
+        if (startFilePath == nil) {
+            loadErr = [NSString stringWithFormat:@"ERROR: Start Page at '%@/%@' was not found.", self.wwwFolderName, self.startPage];
+            NSLog(@"%@", loadErr);
+            self.loadFromString = YES;
+            appURL = nil;
+        } else {
+            appURL = [NSURL fileURLWithPath:startFilePath];
+        }
     }
 
     // // Fix the iOS 5.1 SECURITY_ERR bug (CB-347), this must be before the webView is instantiated ////
@@ -207,7 +240,7 @@
      */
 
     if ([enableLocation boolValue]) {
-        [[self getCommandInstance:@"Geolocation"] getLocation:[CDVInvokedUrlCommand new]];
+        [[self.commandDelegate getCommandInstance:@"Geolocation"] getLocation:[CDVInvokedUrlCommand new]];
     }
 
     /*
@@ -234,7 +267,7 @@
     BOOL bounceAllowed = (bouncePreference == nil || [bouncePreference boolValue]);
 
     // prevent webView from bouncing
-    // based on UIWebViewBounce key in Cordova.plist
+    // based on UIWebViewBounce key in config.xml
     if (!bounceAllowed) {
         if ([self.webView respondsToSelector:@selector(scrollView)]) {
             ((UIScrollView*)[self.webView scrollView]).bounces = NO;
@@ -277,14 +310,17 @@
     }
 
     // /////////////////
-
-    if (!loadErr) {
-        NSURLRequest* appReq = [NSURLRequest requestWithURL:appURL cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:20.0];
-        [self.webView loadRequest:appReq];
-    } else {
-        NSString* html = [NSString stringWithFormat:@"<html><body> %@ </body></html>", loadErr];
-        [self.webView loadHTMLString:html baseURL:nil];
-    }
+    [CDVUserAgentUtil acquireLock:^(NSInteger lockToken) {
+            _userAgentLockToken = lockToken;
+            [CDVUserAgentUtil setUserAgent:self.userAgent lockToken:lockToken];
+            if (!loadErr) {
+                NSURLRequest* appReq = [NSURLRequest requestWithURL:appURL cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:20.0];
+                [self.webView loadRequest:appReq];
+            } else {
+                NSString* html = [NSString stringWithFormat:@"<html><body> %@ </body></html>", loadErr];
+                [self.webView loadHTMLString:html baseURL:nil];
+            }
+        }];
 }
 
 - (NSArray*)parseInterfaceOrientations:(NSArray*)orientations
@@ -382,31 +418,19 @@
     return [self.supportedOrientations containsObject:[NSNumber numberWithInt:orientation]];
 }
 
-/**
- Called by UIKit when the device starts to rotate to a new orientation.  This fires the \c setOrientation
- method on the Orientation object in JavaScript.  Look at the JavaScript documentation for more information.
- */
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+- (UIWebView*)newCordovaViewWithFrame:(CGRect)bounds
 {
-    if (!IsAtLeastiOSVersion(@"5.0")) {
-        NSString* jsCallback = [NSString stringWithFormat:
-            @"window.__defineGetter__('orientation',function(){ return %d; }); \
-                                  cordova.fireWindowEvent('orientationchange');"
-            , [self mapIosOrientationToJsOrientation:fromInterfaceOrientation]];
-        [self.commandDelegate evalJs:jsCallback];
+    return [[UIWebView alloc] initWithFrame:bounds];
+}
+
+- (NSString*)userAgent
+{
+    if (_userAgent == nil) {
+        NSString* originalUserAgent = [CDVUserAgentUtil originalUserAgent];
+        // Use our address as a unique number to append to the User-Agent.
+        _userAgent = [NSString stringWithFormat:@"%@ (%lld)", originalUserAgent, (long long)self];
     }
-}
-
-- (CDVCordovaView*)newCordovaViewWithFrame:(CGRect)bounds
-{
-    return [[CDVCordovaView alloc] initWithFrame:bounds];
-}
-
-- (NSString*)originalUserAgent
-{
-    UIWebView* testWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
-
-    return [testWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+    return _userAgent;
 }
 
 - (void)createGapView
@@ -416,18 +440,6 @@
     webViewBounds.origin = self.view.bounds.origin;
 
     if (!self.webView) {
-        // generate a GUID to append to the User-Agent
-        CFUUIDRef uuidRef = CFUUIDCreate(kCFAllocatorDefault);
-        CFStringRef uuidString = CFUUIDCreateString(kCFAllocatorDefault, uuidRef);
-        NSString* modifiedUA = [NSString stringWithFormat:@"%@ (%@)", [self originalUserAgent], uuidString];
-        CFRelease(uuidString);
-        CFRelease(uuidRef);
-
-        // setting the UserAgent must occur before the UIWebView is instantiated.
-        // This is read per instantiation, so it does not affect the main Cordova UIWebView
-        NSDictionary* dict = [[NSDictionary alloc] initWithObjectsAndKeys:modifiedUA, @"UserAgent", nil];
-        [[NSUserDefaults standardUserDefaults] registerDefaults:dict];
-
         self.webView = [self newCordovaViewWithFrame:webViewBounds];
         self.webView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
 
@@ -473,6 +485,7 @@
 
     self.webView.delegate = nil;
     self.webView = nil;
+    [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
 }
 
 #pragma mark UIWebViewDelegate
@@ -492,6 +505,8 @@
  */
 - (void)webViewDidFinishLoad:(UIWebView*)theWebView
 {
+    [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
+
     /*
      * Hide the Top Activity THROBBER in the Battery Bar
      */
@@ -500,21 +515,24 @@
     id autoHideSplashScreenValue = [self.settings objectForKey:@"AutoHideSplashScreen"];
     // if value is missing, default to yes
     if ((autoHideSplashScreenValue == nil) || [autoHideSplashScreenValue boolValue]) {
-        self.imageView.hidden = YES;
-        self.activityView.hidden = YES;
+        [self hideSplashScreen];
         [self.view.superview bringSubviewToFront:self.webView];
     }
     [self didRotateFromInterfaceOrientation:(UIInterfaceOrientation)[[UIDevice currentDevice] orientation]];
 
-    // The iOSVCAddr is used to identify the WebView instance when using one of the XHR js->native bridge modes.
     // The .onNativeReady().fire() will work when cordova.js is already loaded.
     // The _nativeReady = true; is used when this is run before cordova.js is loaded.
-    NSString* nativeReady = [NSString stringWithFormat:@"cordova.iOSVCAddr='%lld';try{cordova.require('cordova/channel').onNativeReady.fire();}catch(e){window._nativeReady = true;}", (long long)self];
-    [self.commandDelegate evalJs:nativeReady];
+    NSString* nativeReady = @"try{cordova.require('cordova/channel').onNativeReady.fire();}catch(e){window._nativeReady = true;}";
+    // Don't use [commandDelegate evalJs] here since it relies on cordova.js being loaded already.
+    [self.webView stringByEvaluatingJavaScriptFromString:nativeReady];
+
+    [self processOpenUrl];
 }
 
 - (void)webView:(UIWebView*)webView didFailLoadWithError:(NSError*)error
 {
+    [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
+
     NSLog(@"Failed to load webpage with error: %@", [error localizedDescription]);
 
     /*
@@ -628,86 +646,8 @@
     return basePath;
 }
 
-- (void)showSplashScreen
+- (void)updateSplashScreenSpinner
 {
-    CGRect screenBounds = [[UIScreen mainScreen] bounds];
-    NSString* launchImageFile = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UILaunchImageFile"];
-
-    if (launchImageFile == nil) { // fallback if no launch image was specified
-        if (CDV_IsIPhone5()) {
-            // iPhone 5 or iPod Touch 6th-gen
-            launchImageFile = @"Default-568h";
-        } else {
-            launchImageFile = @"Default";
-        }
-    }
-
-    NSString* orientedLaunchImageFile = nil;
-    CGAffineTransform startupImageTransform = CGAffineTransformIdentity;
-    UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
-    CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
-    UIInterfaceOrientation statusBarOrientation = [UIApplication sharedApplication].statusBarOrientation;
-    UIImage* launchImage = nil;
-
-    // default to center of screen as in the original implementation. This will produce the 20px jump
-    CGPoint center = CGPointMake((screenBounds.size.width / 2), (screenBounds.size.height / 2));
-
-    if (CDV_IsIPad()) {
-        if (!UIDeviceOrientationIsValidInterfaceOrientation(deviceOrientation)) {
-            deviceOrientation = (UIDeviceOrientation)statusBarOrientation;
-        }
-
-        switch (deviceOrientation) {
-            case UIDeviceOrientationLandscapeLeft: // this is where the home button is on the right (yeah, I know, confusing)
-                {
-                    orientedLaunchImageFile = [NSString stringWithFormat:@"%@-Landscape", launchImageFile];
-                    startupImageTransform = CGAffineTransformMakeRotation(degreesToRadian(90));
-                    center.x -= MIN(statusBarFrame.size.width, statusBarFrame.size.height) / 2;
-                }
-                break;
-
-            case UIDeviceOrientationLandscapeRight: // this is where the home button is on the left (yeah, I know, confusing)
-                {
-                    orientedLaunchImageFile = [NSString stringWithFormat:@"%@-Landscape", launchImageFile];
-                    startupImageTransform = CGAffineTransformMakeRotation(degreesToRadian(-90));
-                    center.x += MIN(statusBarFrame.size.width, statusBarFrame.size.height) / 2;
-                }
-                break;
-
-            case UIDeviceOrientationPortraitUpsideDown:
-                {
-                    orientedLaunchImageFile = [NSString stringWithFormat:@"%@-Portrait", launchImageFile];
-                    startupImageTransform = CGAffineTransformMakeRotation(degreesToRadian(180));
-                    center.y -= MIN(statusBarFrame.size.width, statusBarFrame.size.height) / 2;
-                }
-                break;
-
-            case UIDeviceOrientationPortrait:
-            default:
-                {
-                    orientedLaunchImageFile = [NSString stringWithFormat:@"%@-Portrait", launchImageFile];
-                    startupImageTransform = CGAffineTransformIdentity;
-                    center.y += MIN(statusBarFrame.size.width, statusBarFrame.size.height) / 2;
-                }
-                break;
-        }
-    } else { // not iPad
-        orientedLaunchImageFile = launchImageFile;
-    }
-
-    launchImage = [UIImage imageNamed:[[self class] resolveImageResource:orientedLaunchImageFile]];
-    if (launchImage == nil) {
-        NSLog(@"WARNING: Splash-screen image '%@' was not found. Orientation: %d, iPad: %d", orientedLaunchImageFile, deviceOrientation, CDV_IsIPad());
-    }
-
-    self.imageView = [[UIImageView alloc] initWithImage:launchImage];
-    self.imageView.tag = 1;
-    self.imageView.center = center;
-
-    self.imageView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin);
-    [self.imageView setTransform:startupImageTransform];
-    [self.view.superview addSubview:self.imageView];
-
     /*
      * The Activity View is the top spinning throbber in the status/battery bar. We init it with the default Grey Style.
      *
@@ -742,14 +682,107 @@
     [self.view.superview layoutSubviews];
 }
 
+- (void)updateSplashImageForOrientation:(UIInterfaceOrientation)orientation
+{
+    if (self.imageView == nil) {
+        self.imageView = [[UIImageView alloc] init];
+        [self.view addSubview:self.imageView];
+    }
+
+    // IPHONE (default)
+    NSString* imageName = @"Default";
+
+    if (CDV_IsIPhone5()) {
+        imageName = [imageName stringByAppendingString:@"-568h"];
+    } else if (CDV_IsIPad()) {
+        // set default to portrait upside down
+        imageName = @"Default-Portrait"; // @"Default-PortraitUpsideDown.png";
+
+        if (orientation == UIInterfaceOrientationLandscapeLeft) {
+            imageName = @"Default-Landscape.png"; // @"Default-LandscapeLeft.png";
+        } else if (orientation == UIInterfaceOrientationLandscapeRight) {
+            imageName = @"Default-Landscape.png"; // @"Default-LandscapeRight.png";
+        }
+    }
+
+    self.imageView.image = [UIImage imageNamed:imageName];
+    self.imageView.frame = CGRectMake(0, 0, self.imageView.image.size.width, self.imageView.image.size.height);
+}
+
+- (void)showSplashScreen
+{
+    [self updateSplashScreenWithState:kSplashScreenStateShow];
+}
+
+- (void)hideSplashScreen
+{
+    [self updateSplashScreenWithState:kSplashScreenStateHide];
+}
+
+- (void)updateSplashScreenWithState:(int)state
+{
+    float toAlpha = state == kSplashScreenStateShow ? 1.0f : 0.0f;
+    BOOL hidden = state == kSplashScreenStateShow ? NO : YES;
+
+    id fadeSplashScreenValue = [self.settings objectForKey:@"FadeSplashScreen"];
+    id fadeSplashScreenDuration = [self.settings objectForKey:@"FadeSplashScreenDuration"];
+
+    // if value is missing, default to 2.0f
+    float fadeDuration = fadeSplashScreenDuration == nil ? kSplashScreenDurationDefault : [fadeSplashScreenDuration floatValue];
+
+    // if value is missing, default to no fade
+    if ((fadeSplashScreenValue == nil) || ![fadeSplashScreenValue boolValue]) {
+        [self.imageView setHidden:hidden];
+        [self.activityView setHidden:hidden];
+    } else {
+        if (state == kSplashScreenStateShow) {
+            // reset states
+            [self.imageView setHidden:NO];
+            [self.activityView setHidden:NO];
+            [self.imageView setAlpha:0.0f];
+            [self.activityView setAlpha:0.0f];
+        }
+
+        [UIView transitionWithView:self.view
+                          duration:fadeDuration
+                           options:UIViewAnimationOptionTransitionNone
+                        animations:^(void) {
+                [self.imageView setAlpha:toAlpha];
+                [self.activityView setAlpha:toAlpha];
+            }
+                        completion:^(BOOL finished) {
+                if (state == kSplashScreenStateHide) {
+                    // reset states
+                    [self.imageView setHidden:YES];
+                    [self.activityView setHidden:YES];
+                    [self.imageView setAlpha:1.0f];
+                    [self.activityView setAlpha:1.0f];
+                }
+            }];
+    }
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+
+    if (self.useSplashScreen && (self.imageView != nil)) {
+        [self updateSplashImageForOrientation:toInterfaceOrientation];
+    }
+}
+
 BOOL gSplashScreenShown = NO;
-- (void)receivedOrientationChange
+- (void)receivedOrientationChange:(NSNotification*)notification
 {
     if (self.imageView == nil) {
         gSplashScreenShown = YES;
         if (self.useSplashScreen) {
-            [self showSplashScreen];
+            [self updateSplashImageForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
         }
+    }
+
+    if (self.activityView == nil) {
+        [self updateSplashScreenSpinner];
     }
 }
 
@@ -909,6 +942,23 @@ BOOL gSplashScreenShown = NO;
 
 // ///////////////////////
 
+- (void)handleOpenURL:(NSNotification*)notification
+{
+    self.openURL = notification.object;
+}
+
+- (void)processOpenUrl
+{
+    if (self.openURL) {
+        // calls into javascript global function 'handleOpenURL'
+        NSString* jsString = [NSString stringWithFormat:@"handleOpenURL(\"%@\");", [self.openURL description]];
+        [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+        self.openURL = nil;
+    }
+}
+
+// ///////////////////////
+
 - (void)dealloc
 {
     [CDVURLProtocol unregisterViewController:self];
@@ -917,9 +967,12 @@ BOOL gSplashScreenShown = NO;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSCurrentLocaleDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:CDVPluginHandleOpenURLNotification object:nil];
 
     self.webView.delegate = nil;
     self.webView = nil;
+    [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
     [_commandQueue dispose];
     [[self.pluginObjects allValues] makeObjectsPerformSelector:@selector(dispose)];
 }
