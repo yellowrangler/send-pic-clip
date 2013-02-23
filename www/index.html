@@ -27,6 +27,7 @@
 <body>
 
 <script type="text/javascript">
+
 $(document).bind('pageinit', function() {
     if (typeof(localStorage) == 'undefined')
     {
@@ -40,6 +41,7 @@ function checkContacts (item)
 		$.mobile.changePage("noContactsDialog.html");
 	else
 	{
+		globalCameraControllerClosed = 0;
 		if (item =="sendPicture")
 			getPicture();
 		if (item =="sendVideo") 
@@ -86,9 +88,10 @@ function openMail(source)
 
 function sendMail(callback, subject, body, tolist, cclist, bcclist, htmltype, attachment)
 {
-	// alert("in send mail")
+	alert("Opening mail")
 	try
 	{
+		// window.plugins.emailComposer.showEmailComposer(subject, body, tolist, cclist, bcclist, htmltype, attachment);
 		window.plugins.emailComposer.showEmailComposerWithCallback(callback, subject, body, tolist, cclist, bcclist, htmltype, attachment);
 	}
 	catch(err)
@@ -148,9 +151,9 @@ function onPhotoSuccess(imageData)
     try 
     {
         // Send Image via email image file location from specified source
-		var str = imageData.replace("file://localhost/","");
-	 	alert("Do It!");
-		openMail(str);
+		var path = imageData.replace("file://localhost/","");
+	 	// alert("Do It!");
+	 	openMail(path);
   	}
 	catch(err)
 	{
@@ -160,12 +163,29 @@ function onPhotoSuccess(imageData)
 
 function onFailVideo(message) 
 {
-	alert('Failed because: ' + message.code);
+	// alert('Failed because: ' + message.code);
+	if (message.code == 3)
+	{
+		var msg = 'Video failed because: No video';
+	}
+	else
+	{
+		var msg = 'Video failed with code: ' + message.code;
+	}
+	
+	var keyValue = 'errormsg';
+	localStorage.setItem(keyValue, msg);
+	
+	$.mobile.changePage("errorDialog.html", {role:"dialog"});
 }
 
 function onFailPicture(message) 
 {
-	alert('Failed because: ' + message);
+	var msg = 'Camera failed because: ' + message;
+	var keyValue = 'errormsg';
+	localStorage.setItem(keyValue, msg);
+	
+	$.mobile.changePage("errorDialog.html", {role:"dialog"});
 }
 
 function clearContacts() 

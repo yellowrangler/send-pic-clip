@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Error Dialog</title>
+</head>
+
+<body><!-- Dialogs for page -->
+<div id="errorDialog" name="errorDialog" data-role="dialog">
+	<script type="text/javascript">
+	function changeToMainPage() 
+	{
+		$.mobile.changePage("index.html");
+	}
+	
+	var msg = localStorage.getItem("errormsg");
+	$("#msg").html(msg);
+	localStorage.removeItem("errormsg");
+	
+	// var currentUrl = $.mobile.activePage.data('url');
+	</script>
+	<div data-role="header" data-theme="b">
+        <h1>Error Dialog</h1>
+    </div>
+	<div data-role="content">       
+    <table width="100%">
+        <tr><td>&nbsp;</td></tr>
+        <tr><td id="msg"></td></tr>
+		<tr><td>&nbsp;</td></tr>
+    </table>               
+	<input id="errorDialogButton" name="errorDialogButton" type="button" value="Ok" data-theme="e" onclick="changeToMainPage();" />      
+    </div><!-- /content -->
+</div> <!-- end of dialog -->
+</body>
+</html>

@@ -15,6 +15,10 @@
         $("[data-role=header]").fixedtoolbar({ tapToggle: false });
 
         onDeviceReady();
+
+		$( "#selectContactsPage" ).on( "swiperight", function() {
+           saveSelected();
+        });
       });
 
      function onDeviceReady() {
@@ -105,6 +109,7 @@
                 currentAlpha = compareAlpha.toUpperCase();
                 htmlLine = htmlLine + "<li style='padding-left:20px;' data-role='list-divider'>"+currentAlpha+"</li>";
             }
+
             localCompare = localEmailArray.indexOf(checkValueDisplay);
             if (localCompare == -1)
                 checkedStr = '';
@@ -159,7 +164,7 @@
         // alert('Contacts Saved!');
 		try
 		{
-			$.mobile.changePage("saveContactsDialog.html",{role:"dialog"});
+			$.mobile.changePage("index.html");
 		}
 		catch(err)
 		{
@@ -182,24 +187,10 @@
 	</div><!-- /content -->
 	    
     <div data-role="footer" data-theme="b" data-position="fixed" data-fullscreen="true">
-        <a href="index.html" id="selectPicClip" name="selectPicClip">Back</a>
-        <a style="float:right" href="#" onclick="saveSelected()" id="submitPicClip" name="submitPicClip">Save</a>
+        <a href="#" onclick="saveSelected()"  id="selectPicClip" name="selectPicClip">Back</a>
+        <!-- <a style="float:right" href="#" onclick="saveSelected()" id="submitPicClip" name="submitPicClip">Save</a> -->
     </div>  <!-- end of content -->	
 </div> <!-- selectContactsPage page -->
 
-<!-- Dialogs for page -->
-<div id="contactsSaved" name="contactsSaved" data-role="dialog">
-	<div data-role="header" data-theme="b">
-        <h1>Message Dialog</h1>
-    </div>
-	<div data-role="content">       
-    <table width="100%">
-        <tr><td>&nbsp;</td></tr>
-        <tr><td>All Selected Contacts have been saved!</td></tr>
-		<tr><td>&nbsp;</td></tr>
-    </table>               
-	<input id="contactsSavedButton" name="contactsSavedButton" type="button" value="Ok" data-theme="e" onclick="changeToMainPage();" />      
-    </div><!-- /content -->
-</div> <!-- end of dialog -->
 </body>
 </html>

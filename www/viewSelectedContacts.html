@@ -23,6 +23,11 @@
         $("[data-role=header]").fixedtoolbar({ tapToggle: false });
 
         onDeviceReady();
+
+		$( "#viewSelectedContactListPage" ).on( "swiperight", function() {
+           saveSelected();
+        });
+
       });
 
      function onDeviceReady() {
@@ -57,7 +62,10 @@
 		var htmlLine = "";
         for (var k=0; k < contactList.length; k++)
         {
-            htmlLine = htmlLine + "<li style='padding-left:20px;'>"+contactList[k]+"</li>";
+			htmlLine = htmlLine + "<li style='padding-left:20px;'><table><tr><td><input type='checkbox' name='checkbox-"+k+"' id='checkbox-"+k+"' value='"+contactList[k]+"' class='custom' checked /></td>";
+            htmlLine = htmlLine + "<td>"+contactList[k]+"</td></tr></table></li>";
+
+            // htmlLine = htmlLine + "<li style='padding-left:20px;'>"+contactList[k]+"</li>";
         }       
         // console.log(htmlLine);
 		
@@ -65,37 +73,63 @@
 
         $('#viewSelectedContactList').listview('refresh');
     };
+
+	//
+    // save selected contacts
+    //
+    function saveSelected() 
+    {
+        try 
+        {
+            //
+            // first remove all previously selected
+            //
+            localStorage.clear();
+
+            var nbr = 0;
+            $('input[type=checkbox]').each(function() {
+                if (this.checked)
+                {
+                    keyValue = 'spc'+nbr;
+                    localStorage.setItem(keyValue, $(this).val());
+                    nbr++;
+                }
+            });
+        }
+        catch(err)
+        {
+            alert(err);
+        }
+        
+		// Transition to index
+		try
+		{
+			$.mobile.changePage("index.html");
+		}
+		catch(err)
+		{
+			alert(err);
+		}
+		
+    }
+
 	</script>
 	
     <div data-role="header" data-theme="b" data-position="fixed" data-fullscreen="true">
         <h1>Selected Contacts</h1>
     </div> <!-- end of header -->
 
-    <div style="position:relative;top:50px;" data-role="content">	
+    <div id="contactListArea" style="position:relative;top:50px;" data-role="content">	
     <form>   
     <ul id="viewSelectedContactList" data-role="listview" data-theme="d">
     </ul>
 	</form> 
-	</div><!-- /content -->
+	</div><!-- contactListArea -->
 	    
     <div data-role="footer" data-theme="b" data-position="fixed" data-fullscreen="true">
-        <a href="index.html" id="selectPicClip" name="selectPicClip">Back</a>
+        <a href="#" onClick="saveSelected();" id="selectPicClip" name="selectPicClip">Back</a>
     </div>  <!-- end of content -->	
 </div> <!-- sviewSelectedContactListPage page -->
 
-<!-- Dialogs for page -->
-<div id="contactsSaved" name="contactsSaved" data-role="dialog">
-	<div data-role="header" data-theme="b">
-        <h1>Message Dialog</h1>
-    </div>
-	<div data-role="content">       
-    <table width="100%">
-        <tr><td>&nbsp;</td></tr>
-        <tr><td>All Selected Contacts have been saved!</td></tr>
-		<tr><td>&nbsp;</td></tr>
-    </table>               
-	<input id="contactsSavedButton" name="contactsSavedButton" type="button" value="Ok" data-theme="e" onclick="changeToMainPage();" />      
-    </div><!-- /content -->
-</div> <!-- end of dialog -->
 </body>
 </html>
