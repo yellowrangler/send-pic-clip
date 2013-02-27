@@ -22,13 +22,15 @@
       });
 
      function onDeviceReady() {
+		// $("#selectContactList").html("<center><h3>Loading Data....</h3></center>");
+	
         var options = new ContactFindOptions();
         options.filter=""; 
         options.multiple=true;
         // var fields = ["emails", "name"];
 
-        var fields = ["*"];
-        // alert("before find");
+        // var fields = ["*"];
+		var fields = ["emails"];
         navigator.contacts.find(fields, onSuccess, onError, options);
     };
 
@@ -36,7 +38,6 @@
     // onSuccess: Get a snapshot of the current contacts
     //
     function onSuccess(contacts) {
-
         //
         // go through all contacts
         //
@@ -45,14 +46,14 @@
         var count = 0;
         for (var i=0; i<contacts.length; i++) {
             // alert(contacts[i].id+" "+contacts[i].name.formatted);
-            if (contacts[i].phoneNumbers != null)
-            {
-                for (var j=0; j<contacts[i].phoneNumbers.length; j++)
-                {
-                    // alert(contacts[i].phoneNumbers[j].type+" "+contacts[i].phoneNumbers[j].value);
-
-                }
-            }
+            // if (contacts[i].phoneNumbers != null)
+            //             {
+            //                 for (var j=0; j<contacts[i].phoneNumbers.length; j++)
+            //                 {
+            //                     // alert(contacts[i].phoneNumbers[j].type+" "+contacts[i].phoneNumbers[j].value);
+            // 
+            //                 }
+            //             }
 
             if (contacts[i].emails == null)
                 continue;
@@ -120,8 +121,7 @@
             htmlLine = htmlLine + "<td>"+checkValueDisplay+"</td></tr></table></li>";
         }       
         // console.log(htmlLine);
-
-        $("#selectContactList").append(htmlLine);
+        $("#selectContactList").html(htmlLine);
 
         $('#selectContactList').listview('refresh');
     }
@@ -161,7 +161,6 @@
             alert(err);
         }
         
-        // alert('Contacts Saved!');
 		try
 		{
 			$.mobile.changePage("index.html");
@@ -181,7 +180,7 @@
 
     <div style="position:relative;top:50px;" data-role="content">	
     <form action="showSelectedContacts.html" method="post">   
-    <ul id="selectContactList" data-role="listview" data-filter="true" data-filter-placeholder="Search contacts..." data-filter-theme="c" data-theme="d" data-divider-theme="b">
+    <ul id="selectContactList" data-role="listview" data-inset="true" data-filter="true" data-filter-placeholder="Search contacts..." data-filter-theme="c" data-theme="d" data-divider-theme="b">
     </ul>
 	</form> 
 	</div><!-- /content -->

@@ -31,7 +31,8 @@
 $(document).bind('pageinit', function() {
     if (typeof(localStorage) == 'undefined')
     {
-        alert ("local storage not supported");
+		var msg = "local storage not supported";
+		errorDialog(msg);
     }
  });
 
@@ -61,11 +62,9 @@ function openMail(source)
 	}
 	catch(err)
 	{
-		alert(err);
+		errorDialog(err);
 	}
 	
-	// alert(emailList);
-	// 	alert(source);
 	try
 	{
 		sendMail(function(result) {
@@ -82,21 +81,29 @@ function openMail(source)
 	catch(err)
 	{
 		console.log("err:"+err);
-		alert("err:"+err);
+		errorDialog(err);
 	}
+}
+
+function errorDialog(msg)
+{
+	var keyValue = 'errormsg';
+	localStorage.setItem(keyValue, msg);
+	$.mobile.changePage("errorDialog.html", {role:"dialog"});
 }
 
 function sendMail(callback, subject, body, tolist, cclist, bcclist, htmltype, attachment)
 {
-	alert("Opening mail")
 	try
 	{
-		// window.plugins.emailComposer.showEmailComposer(subject, body, tolist, cclist, bcclist, htmltype, attachment);
-		window.plugins.emailComposer.showEmailComposerWithCallback(callback, subject, body, tolist, cclist, bcclist, htmltype, attachment);
+		var r = confirm("Clck OK to coninue to eMail!");
+		if (r)
+			window.plugins.emailComposer.showEmailComposer(subject, body, tolist, cclist, bcclist, htmltype, attachment);
+		// window.plugins.emailComposer.showEmailComposerWithCallback(callback, subject, body, tolist, cclist, bcclist, htmltype, attachment);
 	}
 	catch(err)
 	{
-		alert("err:"+err);
+		errorDialog(err);
 	}
 }
 
@@ -109,7 +116,7 @@ function getPicture()
     }
     catch(err)
     {
-        alert(err);
+        errorDialog(err);
     }
 }
 
@@ -119,12 +126,13 @@ function getVideo()
 	
     try 
     {
+		console.log(navigator.device.capture.supportedVideoModes);
         // Retrieve video file location from specified source
  	      navigator.device.capture.captureVideo(onVideoSuccess, onFailVideo, options);
     }
     catch(err)
     {
-        alert(err);
+        errorDialog(err);
     }
 }
 
@@ -141,7 +149,7 @@ function onVideoSuccess(mediaFiles)
 	}
 	catch(err)
 	{
-		alert(err);
+		errorDialog(err);
 	}
 }
 
@@ -157,7 +165,7 @@ function onPhotoSuccess(imageData)
   	}
 	catch(err)
 	{
-	   alert(err);
+	   errorDialog(err);
 	}
 }
 
@@ -173,19 +181,13 @@ function onFailVideo(message)
 		var msg = 'Video failed with code: ' + message.code;
 	}
 	
-	var keyValue = 'errormsg';
-	localStorage.setItem(keyValue, msg);
-	
-	$.mobile.changePage("errorDialog.html", {role:"dialog"});
+	errorDialog(msg);
 }
 
 function onFailPicture(message) 
 {
 	var msg = 'Camera failed because: ' + message;
-	var keyValue = 'errormsg';
-	localStorage.setItem(keyValue, msg);
-	
-	$.mobile.changePage("errorDialog.html", {role:"dialog"});
+	errorDialog(msg);
 }
 
 function clearContacts() 
@@ -236,10 +238,10 @@ function changePage(page)
 		<tr><td>&nbsp;</td></tr>
         <tr><td>&nbsp;</td></tr>
          <tr align="center"> 
-            <td><a href="#" onClick="changePage(this.id)" rel="external" data-role="button" data-theme="b" id="selectContacts" name="selectContacts"/>Select Contacts</td>
+            <td><a href="#" onClick="changePage(this.id)" data-role="button" data-transition="slide" data-theme="b" id="selectContacts" name="selectContacts"/>Select Contacts</td>
         </tr>
 		<tr align="center"> 
-            <td><a href="#" onClick="changePage(this.id)" rel="external" data-role="button" data-theme="b" id="viewSelectedContacts" name="viewSelectedContacts"/>View Selected Contacts</td>
+            <td><a href="#" onClick="changePage(this.id)" data-role="button" data-theme="b" id="viewSelectedContacts" name="viewSelectedContacts"/>View Selected Contacts</td>
         </tr> 
 		<tr align="center"> 
             <td><a href="#" onClick="clearContacts()" data-role="button" data-theme="b" id="clearContactsButton" name="clearContactsButton"/>Clear Selected Contacts</td>
