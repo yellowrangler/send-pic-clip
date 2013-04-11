@@ -33,8 +33,6 @@
 		3088BBBE154F3926009F9C59 /* Default-Landscape~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 3088BBB8154F3926009F9C59 /* Default-Landscape~ipad.png */; };
 		3088BBBF154F3926009F9C59 /* Default-Portrait@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 3088BBB9154F3926009F9C59 /* Default-Portrait@2x~ipad.png */; };
 		3088BBC0154F3926009F9C59 /* Default-Portrait~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 3088BBBA154F3926009F9C59 /* Default-Portrait~ipad.png */; };
-		3088BBC1154F3926009F9C59 /* Default@2x~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = 3088BBBB154F3926009F9C59 /* Default@2x~iphone.png */; };
-		3088BBC2154F3926009F9C59 /* Default~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = 3088BBBC154F3926009F9C59 /* Default~iphone.png */; };
 		308D05371370CCF300D202BF /* icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 308D052E1370CCF300D202BF /* icon-72.png */; };
 		308D05381370CCF300D202BF /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 308D052F1370CCF300D202BF /* icon.png */; };
 		308D05391370CCF300D202BF /* icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 308D05301370CCF300D202BF /* icon@2x.png */; };
@@ -42,11 +40,13 @@
 		30A0434914DC770100060A13 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30A0434614DC770100060A13 /* Localizable.strings */; };
 		30E1352710E2C1420031B30D /* Cordova.plist in Resources */ = {isa = PBXBuildFile; fileRef = 30E1352610E2C1420031B30D /* Cordova.plist */; };
 		30E5649213A7FCAF007403D8 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30E5649113A7FCAF007403D8 /* CoreMedia.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		5872B53E1717194100CE7E87 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 58D2A9DC16C9ABB800EAED0C /* Default-568h@2x.png */; };
+		5872B53F17171B0C00CE7E87 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 58D2A9DA16C9AB2800EAED0C /* Default@2x.png */; };
+		5872B54117171B6F00CE7E87 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 5872B54017171B6F00CE7E87 /* Default.png */; };
 		587F755416C4693E00C412AA /* EmailComposer.m in Sources */ = {isa = PBXBuildFile; fileRef = 587F755316C4693E00C412AA /* EmailComposer.m */; };
 		587F755616C46A0300C412AA /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 587F755516C46A0300C412AA /* MessageUI.framework */; };
 		58D2A9D716C9A8F500EAED0C /* sendpicclicp-icon114x114.png in Resources */ = {isa = PBXBuildFile; fileRef = 58D2A9D616C9A8F500EAED0C /* sendpicclicp-icon114x114.png */; };
 		58D2A9D916C9A9A900EAED0C /* sendpicclicp-icon57x67.png in Resources */ = {isa = PBXBuildFile; fileRef = 58D2A9D816C9A9A900EAED0C /* sendpicclicp-icon57x67.png */; };
-		58D2A9DD16C9ABB800EAED0C /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 58D2A9DC16C9ABB800EAED0C /* Default-568h@2x.png */; };
 		D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */; };
 /* End PBXBuildFile section */
 
@@ -107,6 +107,7 @@
 		30E1352610E2C1420031B30D /* Cordova.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Cordova.plist; path = ../Cordova.plist; sourceTree = "<group>"; };
 		30E5649113A7FCAF007403D8 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		32CA4F630368D1EE00C91783 /* SendPicClip-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SendPicClip-Prefix.pch"; sourceTree = "<group>"; };
+		5872B54017171B6F00CE7E87 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		587F755216C4693E00C412AA /* EmailComposer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmailComposer.h; sourceTree = "<group>"; };
 		587F755316C4693E00C412AA /* EmailComposer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmailComposer.m; sourceTree = "<group>"; };
 		587F755516C46A0300C412AA /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
@@ -185,6 +186,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				5872B54017171B6F00CE7E87 /* Default.png */,
 				58D2A9DC16C9ABB800EAED0C /* Default-568h@2x.png */,
 				58D2A9DA16C9AB2800EAED0C /* Default@2x.png */,
 				58D2A9D816C9A9A900EAED0C /* sendpicclicp-icon57x67.png */,
@@ -397,12 +399,12 @@
 				3088BBBE154F3926009F9C59 /* Default-Landscape~ipad.png in Resources */,
 				3088BBBF154F3926009F9C59 /* Default-Portrait@2x~ipad.png in Resources */,
 				3088BBC0154F3926009F9C59 /* Default-Portrait~ipad.png in Resources */,
-				3088BBC1154F3926009F9C59 /* Default@2x~iphone.png in Resources */,
-				3088BBC2154F3926009F9C59 /* Default~iphone.png in Resources */,
 				D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */,
 				58D2A9D716C9A8F500EAED0C /* sendpicclicp-icon114x114.png in Resources */,
 				58D2A9D916C9A9A900EAED0C /* sendpicclicp-icon57x67.png in Resources */,
-				58D2A9DD16C9ABB800EAED0C /* Default-568h@2x.png in Resources */,
+				5872B53E1717194100CE7E87 /* Default-568h@2x.png in Resources */,
+				5872B53F17171B0C00CE7E87 /* Default@2x.png in Resources */,
+				5872B54117171B6F00CE7E87 /* Default.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

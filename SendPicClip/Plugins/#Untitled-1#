@@ -1,0 +1,24 @@
+- (void)imagePickerController:(UIImagePickerController *)picker 
+didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+
+   NSLog(@"Picker has returned");
+   [self dismissModalViewControllerAnimated:YES];
+
+   // TODO: make this all threaded?
+   // crop the image to the bounds provided
+   img = [info objectForKey:UIImagePickerControllerOriginalImage];
+   NSLog(@"orig image size: %@", [[NSValue valueWithCGSize:img.size] description]);
+
+   // save the image, only if it's a newly taken image:
+   if([picker sourceType] == UIImagePickerControllerSourceTypeCamera){
+      UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil);
+   }
+
+   // self.image_View.image=img;
+   //self.image_View.contentMode = UIViewContentModeScaleAspectFit;
+
+
+   ModalViewController *sampleView = [[ModalViewController alloc] init];
+   [self presentModalViewController:sampleView animated:YES];
+}

@@ -96,8 +96,8 @@ function sendMail(callback, subject, body, tolist, cclist, bcclist, htmltype, at
 {
 	try
 	{
-		var r = confirm("Clck OK to coninue to eMail!");
-		if (r)
+		//var r = confirm("Clck OK to coninue to eMail!");
+		// if (r)
 			window.plugins.emailComposer.showEmailComposer(subject, body, tolist, cclist, bcclist, htmltype, attachment);
 		// window.plugins.emailComposer.showEmailComposerWithCallback(callback, subject, body, tolist, cclist, bcclist, htmltype, attachment);
 	}
@@ -161,7 +161,10 @@ function onPhotoSuccess(imageData)
         // Send Image via email image file location from specified source
 		var path = imageData.replace("file://localhost/","");
 	 	// alert("Do It!");
-	 	openMail(path);
+        setTimeout(function() { 
+            openMail(path);
+            }, 500);
+	 	
   	}
 	catch(err)
 	{

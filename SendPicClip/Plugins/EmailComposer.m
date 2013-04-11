@@ -49,7 +49,7 @@
 
     MFMailComposeViewController *mailComposer = [[MFMailComposeViewController alloc] init];
     mailComposer.mailComposeDelegate = self;
-    
+
 	// set subject
     @try {
         NSString* subject = [parameters objectForKey:@"subject"];
@@ -130,6 +130,7 @@
     } else {
         [self returnWithCode:RETURN_CODE_EMAIL_NOTSENT];
     }
+
     [mailComposer release];
 }
 
@@ -139,7 +140,7 @@
 - (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error {   
     // Notifies users about errors associated with the interface
 	int webviewResult = 0;
-    
+ 
     switch (result) {
         case MFMailComposeResultCancelled:
 			webviewResult = RETURN_CODE_EMAIL_CANCELLED;
